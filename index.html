@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Leave Plan / Actual</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">AL</span>
+          <div>
+            <h1>LeaveOps</h1>
+            <p>Annual leave intelligence</p>
+          </div>
+        </div>
+
+        <section class="panel">
+          <div class="panel-title">Control Year</div>
+          <label class="field">
+            <span>Year</span>
+            <input id="yearInput" type="number" min="2000" max="2100" />
+          </label>
+          <div class="summary-grid">
+            <div>
+              <span id="totalPeople">0</span>
+              <small>Workforce</small>
+            </div>
+            <div>
+              <span id="totalRemain">0</span>
+              <small>Total remain</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Data Control</div>
+          <label class="field">
+            <span>Editor VH (quyền update)</span>
+            <input id="editorVhInput" placeholder="VD: VH4354" />
+          </label>
+          <button id="addEmployeeBtn" class="primary-btn" type="button">+ New Employee</button>
+          <div class="button-row">
+            <button id="exportBtn" type="button">Export</button>
+            <label class="file-btn">
+              Import
+              <input id="importInput" type="file" accept=".json,.csv,.xlsx,.xls,application/json,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
+            </label>
+          </div>
+          <button id="resetDemoBtn" class="ghost-btn" type="button">Reload latest data</button>
+          <button id="viewAuditBtn" type="button">Admin activity</button>
+        </section>
+
+        <section class="panel legend">
+          <div class="panel-title">Calendar Signals</div>
+          <span><i class="dot plan"></i>Plan</span>
+          <span><i class="dot actual"></i>Actual</span>
+          <span><i class="dot holiday"></i>Ngày lễ</span>
+          <span><i class="dot warning"></i>Risk signal</span>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header class="toolbar">
+          <div>
+            <span class="eyebrow">Employee Leave Tracking · PO Mechanical Development Team 2026</span>
+            <h2>LeaveOps Command Center</h2>
+            <p>Plan accuracy, annual leave balance, and risk visibility in one operating view.</p>
+          </div>
+          <div class="toolbar-actions">
+            <label class="search">
+              <span>Search</span>
+              <input id="searchInput" type="search" placeholder="Tên, mã ID, bộ phận..." />
+            </label>
+            <button id="presentationToggleBtn" type="button" class="ghost-btn presentation-btn">Presentation View</button>
+            <div class="segmented" role="tablist" aria-label="Chọn tháng">
+              <button id="prevMonthBtn" type="button" aria-label="Tháng trước">‹</button>
+              <select id="monthSelect" aria-label="Tháng"></select>
+              <button id="nextMonthBtn" type="button" aria-label="Tháng sau">›</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="command-board" aria-label="Leave operation overview">
+          <article class="metric-card accent-blue">
+            <span>Workforce</span>
+            <strong id="metricPeople">0</strong>
+            <small id="metricParts">0 parts</small>
+          </article>
+          <article class="metric-card accent-green">
+            <span>Total Remain</span>
+            <strong id="metricRemain">0</strong>
+            <small>days available</small>
+          </article>
+          <article class="metric-card accent-amber">
+            <span>Actual Used</span>
+            <strong id="metricUsed">0</strong>
+            <small id="metricUtilization">0% utilization</small>
+          </article>
+          <article class="metric-card accent-violet">
+            <span>Planned</span>
+            <strong id="metricPlan">0</strong>
+            <small>future demand</small>
+          </article>
+          <article class="metric-card accent-red">
+            <span>Risk Queue</span>
+            <strong id="metricRisk">0</strong>
+            <small>need action</small>
+          </article>
+          <article class="insight-card">
+            <div class="score-ring">
+              <span id="controlScore">100</span>
+            </div>
+            <div>
+              <span class="insight-label">Control Score</span>
+              <strong id="insightTitle">Balanced</strong>
+              <p id="insightText">Annual leave position is under control.</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="work-grid">
+          <div class="raw-column">
+            <section class="rules-strip" aria-label="Quy tắc tính phép">
+              <span>12 tháng = 12 ngày</span>
+              <span>Đủ 5 năm: +1 ngày</span>
+              <span>Đủ 10 năm: +2 ngày</span>
+              <span>Vào trong năm: tính từ tháng bắt đầu làm đến hết năm</span>
+              <span>Tháng 6: còn ≤ 8 là OK</span>
+              <span>Tháng 9: còn &lt; 3 là OK</span>
+            </section>
+
+            <section class="table-wrap">
+              <table id="leaveTable">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </section>
+          </div>
+
+          <aside class="insight-column">
+            <section class="panel employee-focus">
+              <div class="panel-title">Employee Focus</div>
+              <div class="focus-head">
+                <strong id="selectedName">Chưa chọn nhân viên</strong>
+                <small id="selectedCode">Click vào ô Name trong bảng để xem chi tiết</small>
+              </div>
+              <div class="focus-tags">
+                <span id="selectedPart">-</span>
+                <span id="selectedPosition">-</span>
+              </div>
+              <div class="focus-grid">
+                <div>
+                  <small>Tổng phép năm</small>
+                  <strong id="selectedEntitlement">0</strong>
+                </div>
+                <div>
+                  <small>Đã dùng (năm)</small>
+                  <strong id="selectedUsedYear">0</strong>
+                </div>
+                <div>
+                  <small>Đã dùng (tháng)</small>
+                  <strong id="selectedUsedMonth">0</strong>
+                </div>
+                <div>
+                  <small>Còn lại</small>
+                  <strong id="selectedRemain">0</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="quick-update">
+              <form id="quickUpdateForm" class="quick-form">
+                <label class="field">
+                  <span>ID code</span>
+                  <input id="quickCodeInput" placeholder="VD: VH4354" required />
+                </label>
+                <label class="field">
+                  <span>Loại</span>
+                  <select id="quickTypeSelect">
+                    <option value="plan">Plan</option>
+                    <option value="actual">Actual</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Từ ngày</span>
+                  <input id="quickStartInput" type="date" required />
+                </label>
+                <label class="field">
+                  <span>Đến ngày</span>
+                  <input id="quickEndInput" type="date" />
+                </label>
+                <button class="primary-btn" type="submit">Update</button>
+              </form>
+              <div id="quickMessage" class="quick-message" role="status"></div>
+            </section>
+
+            <section class="chart-panel">
+              <div>
+                <h3>Part Balance</h3>
+                <p>Remain days by Part/Sec.</p>
+              </div>
+              <div id="remainChart" class="part-chart" aria-label="Biểu đồ phép còn theo Part"></div>
+            </section>
+
+            <section class="panel detail-panel">
+              <div class="detail-head">
+                <div class="panel-title">Risk & Balance Queue</div>
+                <button id="openBalanceZoomBtn" type="button" class="zoom-btn" aria-label="Phóng to Risk & Balance Queue">Phóng to</button>
+              </div>
+              <div id="balanceList" class="balance-list"></div>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="employeeDialog">
+      <form id="employeeForm" method="dialog">
+        <div class="dialog-head">
+          <h3 id="dialogTitle">Thêm nhân sự</h3>
+          <button id="closeDialogBtn" type="button" aria-label="Đóng">×</button>
+        </div>
+        <input id="employeeId" type="hidden" />
+        <div class="form-grid">
+          <label class="field">
+            <span>Part/Sec.</span>
+            <input id="partInput" required />
+          </label>
+          <label class="field">
+            <span>ID code</span>
+            <input id="codeInput" required />
+          </label>
+          <label class="field wide">
+            <span>Name</span>
+            <input id="nameInput" required />
+          </label>
+          <label class="field">
+            <span>Position</span>
+            <input id="positionInput" required />
+          </label>
+          <label class="field">
+            <span>Hire date</span>
+            <input id="hireDateInput" type="date" required />
+          </label>
+          <label class="field">
+            <span>Advance using AL</span>
+            <input id="advanceInput" type="number" min="0" step="0.5" value="0" />
+          </label>
+        </div>
+        <div class="dialog-actions">
+          <button id="deleteEmployeeBtn" class="danger-btn" type="button">Xóa</button>
+          <span></span>
+          <button id="cancelDialogBtn" type="button">Hủy</button>
+          <button class="primary-btn" value="default" type="submit">Lưu</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="auditDialog">
+      <form id="auditForm" method="dialog">
+        <div class="dialog-head">
+          <h3>Admin Activity</h3>
+          <button id="closeAuditBtn" type="button" aria-label="Đóng">×</button>
+        </div>
+        <label class="field">
+          <span>Admin pass</span>
+          <input id="auditPassInput" type="password" placeholder="Nhập pass quản trị (POMEDEV)" />
+        </label>
+        <label class="field">
+          <span>Tháng cần xem</span>
+          <input id="auditMonthInput" type="month" />
+        </label>
+        <div class="dialog-actions">
+          <button id="refreshAuditBtn" type="button">Load Logs</button>
+          <span></span>
+          <button id="closeAuditBtn2" type="button">Đóng</button>
+        </div>
+        <div id="auditMessage" class="quick-message"></div>
+        <div id="auditList" class="balance-list" style="max-height:320px"></div>
+      </form>
+    </dialog>
+
+    <dialog id="balanceZoomDialog">
+      <div class="zoom-dialog-body">
+        <div class="dialog-head">
+          <h3>Risk & Balance Queue</h3>
+          <button id="closeBalanceZoomBtn" type="button" aria-label="Đóng">×</button>
+        </div>
+        <div id="balanceListZoom" class="balance-list"></div>
+      </div>
+    </dialog>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

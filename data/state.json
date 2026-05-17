@@ -1,0 +1,81 @@
+{
+  "revision": 16,
+  "year": 2026,
+  "month": 3,
+  "employees": [
+    {
+      "id": "bb59746d-eba0-48ae-9287-dc8705d181ca",
+      "part": "Part 1",
+      "code": "VH4354",
+      "name": "Tran Van An",
+      "position": "Leader",
+      "hireDate": "2021-04-05",
+      "advance": 0.0,
+      "leaves": {}
+    },
+    {
+      "id": "c913ca68-2e68-4e7d-a7e6-7bfab8040226",
+      "part": "Part 1",
+      "code": "VH2948",
+      "name": "Nguyen Van Duy",
+      "position": "S.Eng'r",
+      "hireDate": "2022-05-04",
+      "advance": 0.0,
+      "leaves": {
+        "2026-01-08": {
+          "plan": true,
+          "actual": true
+        },
+        "2026-01-09": {
+          "plan": true,
+          "actual": true
+        },
+        "2026-01-12": {
+          "plan": true,
+          "actual": true
+        }
+      }
+    },
+    {
+      "id": "0071cc2c-b494-4a28-a5fb-14b073ea48e5",
+      "part": "Part 1",
+      "code": "VH2349",
+      "name": "Tran Thi Ha",
+      "position": "Eng'r",
+      "hireDate": "2024-03-02",
+      "advance": 0.0,
+      "leaves": {}
+    },
+    {
+      "id": "406f39cf-014b-4782-b90c-96b134044a93",
+      "part": "Part 2",
+      "code": "VH3482",
+      "name": "Nguyen Huy Hoang",
+      "position": "Leader",
+      "hireDate": "2026-01-06",
+      "advance": 0.0,
+      "leaves": {}
+    },
+    {
+      "id": "7b2474fa-979c-469f-8e6c-1273917eee16",
+      "part": "Part 2",
+      "code": "VH23947",
+      "name": "Bui Thi Lan",
+      "position": "S.Eng'r",
+      "hireDate": "2026-12-01",
+      "advance": 0.0,
+      "leaves": {}
+    },
+    {
+      "id": "8b2df6a4-2d1b-480b-bd31-29525f52b6b0",
+      "part": "Part 2",
+      "code": "VH23849",
+      "name": "Hoang Van Duong",
+      "position": "Eng'r",
+      "hireDate": "2026-11-20",
+      "advance": 0.0,
+      "leaves": {}
+    }
+  ],
+  "updatedAt": "2026-05-17T07:58:05Z"
+}
